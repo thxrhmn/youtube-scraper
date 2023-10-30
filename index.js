@@ -15,9 +15,6 @@ async function get_list_video(url) {
 
   const videos = [];
   const videoHandlers = await page.$$(".style-scope.ytd-rich-grid-row");
-  //   const videoHandlers = await page.$x(
-  //     '//*[@id="contents"]/ytd-rich-item-renderer[1]'
-  //   );
 
   for (let videoHandle of videoHandlers) {
     const titleElement = await videoHandle.$("#video-title");
@@ -375,29 +372,31 @@ function sleep(ms) {
 }
 
 (async () => {
-  // Catat waktu mulai eksekusi
+  // Started time execution
   const startTime = new Date();
 
-  const url = "https://www.youtube.com/@JohnWatsonRooney/videos";
+  // Get url from argument
+  const url = process.argv[2];
 
-  const videos = await get_list_video(url);
-  console.log("total videos: ", videos.length);
+  if (url) {
+    console.log("URL yang diberikan:", url);
 
-  const details = await get_detail_video(videos);
-  saveToJsonFile("JohnWatsonRoone", details);
+    if (url.includes("playlist")) {
+      const playlist = await get_playlist(url);
+      const channelName = playlist ? playlist.channelURL.split("@")[1] : "-";
+      saveToJsonFile(channelName, playlist);
+      console.log("total videos: ", playlist.videos.length);
+      console.log(playlist);
+    } else {
+      const videos = await get_list_video(url);
+      console.log("total videos: ", videos.length);
+      const details = await get_detail_video(videos);
+      saveToJsonFile("JohnWatsonRoone", details);
+    }
+  } else {
+    console.log("URL tidak diberikan. Harap berikan URL pada baris perintah.");
+  }
 
-  //   const playlist = await get_playlist(
-  //     "https://www.youtube.com/playlist?list=PLRzwgpycm-Fio7EyivRKOBN4D3tfQ_rpu"
-  //   );
-
-  //   const channelName = playlist ? playlist.channelURL.split("@")[1] : "-";
-
-  //   saveToJsonFile(channelName, playlist);
-
-  //   console.log("total videos: ", playlist.videos.length);
-  //   console.log(playlist);
-
-  // Catat waktu akhir eksekusi
+  // Ended time execution
   countTimes(startTime);
-  //   console.log("Berhasil menyimpan ", videos.length, " video");
 })();
