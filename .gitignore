@@ -1,0 +1,7 @@
+node_modules
+lib
+fh
+*.txt
+ig.js
+ts.js
+cookies.json
